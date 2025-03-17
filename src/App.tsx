@@ -1,6 +1,9 @@
 import React, { useRef, useState } from "react";
 import "./App.css";
-
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { Alert, Button } from "@mui/material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 function SlidePreview() {
   const [content, setContent] = useState("ADD CONTENT");
   const [name, setName] = useState("Your name");
@@ -49,37 +52,64 @@ function SlidePreview() {
 
   return (
     <div className="slide-box">
-      <div className="slide" style={{ backgroundColor: backgroundColor }}>
-        <div className="profile">
-          <img
-            className="profile-icon"
-            src={
-              typeof profileImage === "string"
-                ? profileImage
-                : "/src/assets/profile.png"
-            }
-          />
-          <p
-            className="profile-name"
-            style={{
-              fontSize: 14,
-              color: textColor,
-            }}
-          >
-            {name}
-          </p>
+      <div className="slide-actions">
+        <div className="slide-group">
+          <button className="slide-previous">
+            <ArrowBackIosNewIcon />
+          </button>
+          <div className="slide" style={{ backgroundColor: backgroundColor }}>
+            <div className="profile">
+              <img
+                className="profile-icon"
+                src={
+                  typeof profileImage === "string"
+                    ? profileImage
+                    : "/src/assets/profile.png"
+                }
+              />
+              <p
+                className="profile-name"
+                style={{
+                  fontSize: 14,
+                  color: textColor,
+                }}
+              >
+                {name}
+              </p>
+            </div>
+            <div
+              className="content"
+              style={{
+                fontFamily: fontFamily,
+                fontSize: `${fontSize}px`,
+                color: textColor,
+              }}
+            >
+              {content}
+            </div>
+          </div>
+          <button className="slide-next">
+            <ArrowForwardIosIcon />
+          </button>
         </div>
-        <div
-          className="content"
-          style={{
-            fontFamily: fontFamily,
-            fontSize: `${fontSize}px`,
-            color: textColor,
-          }}
-        >
-          {content}
+
+        <div className="slide-add">
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<AddCircleIcon />}
+          >
+            <span
+              style={{
+                fontSize: "1rem",
+              }}
+            >
+              Add slide
+            </span>
+          </Button>
         </div>
       </div>
+
       <div className="slide-input">
         <div className="text-box">
           <label>
@@ -113,7 +143,13 @@ function SlidePreview() {
           </div>
 
           <div className="selected-file">
-            <span>Selected File : {selectedFileName}</span>
+            <Alert
+              variant="outlined"
+              severity={profileImage ? "success" : "error"}
+            >
+              Selected File : {selectedFileName}
+            </Alert>
+            <span></span>
           </div>
         </div>
         <div className="slide-style">

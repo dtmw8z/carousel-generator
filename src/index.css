@@ -104,13 +104,40 @@ select {
 
 .selected-file {
   margin-top: 5px;
-  border: 1px;
-  height: 10px;
-  color: red;
 }
 
 .slide-color {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+.slide-previous,
+.slide-next {
+  background-color: purple;
+  color: white;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 40%;
+  border: none;
+}
+
+.slide-previous:hover,
+.slide-next:hover {
+  background-color: #ba3feb;
+}
+
+.slide-group {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.slide-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  align-items: center;
 }
