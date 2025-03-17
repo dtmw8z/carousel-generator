@@ -2,46 +2,104 @@ import React, { useRef, useState } from "react";
 import "./App.css";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import { Alert, Button } from "@mui/material";
+import {
+  Alert,
+  Avatar,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Fab,
+  Pagination,
+  Typography,
+} from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { Download } from "@mui/icons-material";
+
+interface Slide {
+  content: string;
+  name: string;
+  profileImage: string | null;
+  backgroundColor: string;
+  fontFamily: string;
+  fontSize: number;
+  textColor: string;
+  selectedFileName: string;
+}
+
 function SlidePreview() {
-  const [content, setContent] = useState("ADD CONTENT");
-  const [name, setName] = useState("Your name");
-  const [profileImage, setProfileImage] = useState<string | ArrayBuffer | null>(
-    null
-  );
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState<Slide[]>([
+    {
+      content: "ADD CONTENT",
+      name: "Your name",
+      profileImage: null,
+      backgroundColor: "#00a6a6",
+      fontFamily: "Arial",
+      fontSize: 18,
+      textColor: "#000000",
+      selectedFileName: "No file selected",
+    },
+  ]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedFileName, setSelectedFileName] = useState("No file selected");
+  const updateSlide = (index: number, updates: Partial<Slide>) => {
+    setSlides((prev) =>
+      prev.map((slide, i) => (i === index ? { ...slide, ...updates } : slide))
+    );
+  };
 
-  const [backgroundColor, setBackgroundColor] = useState("#00a6a6");
-  const [fontFamily, setFontFamily] = useState("Arial");
-  const [fontSize, setFontSize] = useState(18);
-  const [textColor, setTextColor] = useState("#000000");
+  const downloadPdf = () => {};
+
+  const addSlide = () => {
+    if (slides.length >= 5) {
+      alert("You can add only 5 slides");
+      return;
+    }
+
+    setSlides([
+      ...slides,
+      {
+        content: "ADD CONTENT",
+        name: "Your name",
+        profileImage: null,
+        backgroundColor: "#00a6a6",
+        fontFamily: "Arial",
+        fontSize: 18,
+        textColor: "#000000",
+        selectedFileName: "No file selected",
+      },
+    ]);
+    setCurrentSlide(slides.length);
+  };
+
+  const changeSlide = (direction: "next" | "prev") => {
+    setCurrentSlide((prev) =>
+      direction === "next"
+        ? (prev + 1) % slides.length
+        : (prev - 1 + slides.length) % slides.length
+    );
+  };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        alert("Please upload correct file");
-        return;
-      }
-
-      if (file.size > 5 * 1025 * 1024) {
-        alert("Please upload file less than 5MB.");
-        return;
-      }
-
-      setSelectedFileName(file.name);
-
+    if (
+      file &&
+      file.type.startsWith("image/") &&
+      file.size <= 5 * 1024 * 1024
+    ) {
       const reader = new FileReader();
-
-      reader.readAsDataURL(file);
-
       reader.onload = () => {
-        setProfileImage(reader.result);
+        updateSlide(currentSlide, {
+          profileImage: reader.result as string,
+          selectedFileName: file.name,
+        });
       };
+      reader.readAsDataURL(file);
+    } else {
+      alert("Please upload a valid image file less than 5MB.");
     }
   };
 
@@ -53,42 +111,64 @@ function SlidePreview() {
   return (
     <div className="slide-box">
       <div className="slide-actions">
+        <div className="slide-pagination">
+          <Pagination
+            count={slides.length}
+            page={currentSlide + 1}
+            onChange={(_, page) => setCurrentSlide(page - 1)}
+          />{" "}
+        </div>
         <div className="slide-group">
-          <button className="slide-previous">
+          <button
+            onClick={() => changeSlide("prev")}
+            className="slide-previous"
+            disabled={currentSlide === 0}
+            aria-label="previous"
+          >
             <ArrowBackIosNewIcon />
           </button>
-          <div className="slide" style={{ backgroundColor: backgroundColor }}>
-            <div className="profile">
-              <img
-                className="profile-icon"
-                src={
-                  typeof profileImage === "string"
-                    ? profileImage
-                    : "/src/assets/profile.png"
-                }
-              />
-              <p
-                className="profile-name"
-                style={{
-                  fontSize: 14,
-                  color: textColor,
-                }}
-              >
-                {name}
-              </p>
-            </div>
-            <div
+
+          <Card
+            className="slide"
+            style={{ backgroundColor: slides[currentSlide].backgroundColor }}
+          >
+            <CardHeader
+              avatar={<Avatar src={slides[currentSlide].profileImage || ""} />}
+              title={slides[currentSlide].name}
+              slotProps={{
+                title: {
+                  style: {
+                    fontSize: 14,
+                    color: slides[currentSlide].textColor,
+                  },
+                },
+              }}
+            />
+            <CardContent
               className="content"
               style={{
-                fontFamily: fontFamily,
-                fontSize: `${fontSize}px`,
-                color: textColor,
+                fontFamily: slides[currentSlide].fontFamily,
+                fontSize: `${slides[currentSlide].fontSize}px`,
+                color: slides[currentSlide].textColor,
               }}
             >
-              {content}
-            </div>
-          </div>
-          <button className="slide-next">
+              <Typography
+                sx={{
+                  fontFamily: slides[currentSlide].fontFamily,
+                  fontSize: `${slides[currentSlide].fontSize}px`,
+                  color: slides[currentSlide].textColor,
+                }}
+              >
+                {slides[currentSlide].content}
+              </Typography>
+            </CardContent>
+          </Card>
+          <button
+            onClick={() => changeSlide("next")}
+            className="slide-next"
+            disabled={currentSlide === slides.length - 1}
+            aria-label="next"
+          >
             <ArrowForwardIosIcon />
           </button>
         </div>
@@ -97,6 +177,8 @@ function SlidePreview() {
           <Button
             variant="contained"
             color="success"
+            onClick={addSlide}
+            disabled={slides.length >= 5}
             startIcon={<AddCircleIcon />}
           >
             <span
@@ -115,14 +197,21 @@ function SlidePreview() {
           <label>
             <span className="label-text">Content</span>
             <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              value={slides[currentSlide].content}
+              onChange={(e) =>
+                updateSlide(currentSlide, { content: e.target.value })
+              }
             />
           </label>
 
           <label>
             <span className="label-text">Name</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              value={slides[currentSlide].name}
+              onChange={(e) =>
+                updateSlide(currentSlide, { name: e.target.value })
+              }
+            />
           </label>
 
           <div className="image-upload">
@@ -145,9 +234,9 @@ function SlidePreview() {
           <div className="selected-file">
             <Alert
               variant="outlined"
-              severity={profileImage ? "success" : "error"}
+              severity={slides[currentSlide].profileImage ? "success" : "error"}
             >
-              Selected File : {selectedFileName}
+              Selected File : {slides[currentSlide].selectedFileName}
             </Alert>
             <span></span>
           </div>
@@ -164,8 +253,12 @@ function SlidePreview() {
                     width: "100%",
                   }}
                   type="color"
-                  value={backgroundColor}
-                  onChange={(e) => setBackgroundColor(e.target.value)}
+                  value={slides[currentSlide].backgroundColor}
+                  onChange={(e) =>
+                    updateSlide(currentSlide, {
+                      backgroundColor: e.target.value,
+                    })
+                  }
                 />
               </label>
 
@@ -176,8 +269,10 @@ function SlidePreview() {
                     width: "100%",
                   }}
                   type="color"
-                  value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
+                  value={slides[currentSlide].textColor}
+                  onChange={(e) =>
+                    updateSlide(currentSlide, { textColor: e.target.value })
+                  }
                 />
               </label>
             </div>
@@ -194,8 +289,10 @@ function SlidePreview() {
                   width: "40%",
                   color: "black",
                 }}
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
+                value={slides[currentSlide].fontFamily}
+                onChange={(e) =>
+                  updateSlide(currentSlide, { fontFamily: e.target.value })
+                }
               >
                 <option value="Roboto">Roboto</option>
                 <option value="Arial">Arial</option>
@@ -207,13 +304,25 @@ function SlidePreview() {
               <span className="label-text">Font Size</span>
               <input
                 type="number"
-                value={fontSize}
-                onChange={(e) => setFontSize(Number(e.target.value))}
+                value={slides[currentSlide].fontSize}
+                onChange={(e) =>
+                  updateSlide(currentSlide, {
+                    fontSize: Number(e.target.value),
+                  })
+                }
               />
             </label>
           </div>
         </div>
       </div>
+      <Fab
+        color="primary"
+        aria-label="Download"
+        onClick={downloadPdf}
+        sx={{ position: "absolute", bottom: 35, right: 35 }}
+      >
+        <Download />
+      </Fab>
     </div>
   );
 }
