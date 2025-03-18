@@ -1,5 +1,144 @@
-* {
-  box-sizing: border-box;
+.container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  background-color: #f0f0f0; /* Optional: Add a background color */
+}
+
+.slide-box {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 20px;
+}
+
+.carousel {
+  width: 400px; /* Smaller for better visibility */
+  height: 500px;
+  background-color: #00a6a6;
+  color: white;
+  font-size: 18px;
+  padding: 20px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 10px;
+  overflow: scroll;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.profile-icon {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-name {
   margin: 0;
-  padding: 0;
+  color: white;
+}
+
+.content {
+  max-width: 80%;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.slide-input {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.text-box {
+  width: 300px;
+}
+
+input,
+textarea {
+  width: 100%;
+  height: 40px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid black;
+  outline: none;
+  padding: 5px;
+}
+
+.upload-image,
+select {
+  width: 100%;
+  height: 40px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid black;
+  background-color: #0073e6;
+  color: white;
+  cursor: pointer;
+}
+
+.upload-image:hover {
+  background-color: #005bb5;
+}
+
+.label-text {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.selected-file {
+  margin-top: 5px;
+}
+
+.slide-color {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.slide-previous,
+.slide-next {
+  background-color: purple;
+  color: white;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 40%;
+  border: none;
+}
+
+.slide-previous:hover,
+.slide-next:hover {
+  background-color: #ba3feb;
+}
+
+.slide-group {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+}
+
+.slide-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  align-items: center;
 }

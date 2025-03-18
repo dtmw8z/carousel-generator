@@ -2,19 +2,34 @@ import React, { useRef, useState } from "react";
 import "./App.css";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import {
-  Alert,
-  Avatar,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Fab,
-  Pagination,
-  Typography,
-} from "@mui/material";
+import { Alert, Button, Fab, Pagination } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Download } from "@mui/icons-material";
+import {
+  PDFDownloadLink,
+  Document,
+  Page,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Font,
+} from "@react-pdf/renderer";
+
+Font.register({
+  family: "Roboto",
+  src: "http://fonts.gstatic.com/s/roboto/v16/zN7GBFwfMP4uA6AR0HCoLQ.ttf",
+});
+
+Font.register({
+  family: "Abel",
+  src: "http://fonts.gstatic.com/s/abel/v6/N59kklKPso9WzbZH9jwJSg.ttf",
+});
+
+Font.register({
+  family: "Abril Fatface",
+  src: "http://fonts.gstatic.com/s/abrilfatface/v8/X1g_KwGeBV3ajZIXQ9VnDibsRidxnYrfzLNRqJkHfFo.ttf",
+});
 
 interface Slide {
   content: string;
@@ -26,6 +41,91 @@ interface Slide {
   textColor: string;
   selectedFileName: string;
 }
+// Styles for the PDF document
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 400,
+    height: 500,
+  },
+  carousel: {
+    width: 400,
+    height: 500,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  profile: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    position: "absolute",
+    top: 20,
+    left: 20,
+  },
+  profileIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    objectFit: "cover",
+  },
+  profileName: {
+    fontSize: 14,
+    margin: 0,
+  },
+  content: {
+    maxWidth: "80%",
+    textAlign: "center",
+    wordWrap: "break-word",
+  },
+});
+
+// PDF Rendering
+const MyDocument = ({ slides }: { slides: Slide[] }) => (
+  <Document>
+    {slides.map((slide, index) => (
+      <Page
+        key={index}
+        size={{ width: 400, height: 500 }}
+        style={{ ...styles.page, backgroundColor: slide.backgroundColor }}
+      >
+        <View style={styles.carousel}>
+          <View style={styles.profile}>
+            <Image
+              src={slide.profileImage || "/src/assets/profile.png"}
+              style={styles.profileIcon}
+            />
+            <Text
+              style={{
+                ...styles.profileName,
+                color: slide.textColor,
+                fontFamily: slide.fontFamily,
+                fontSize: slide.fontSize,
+              }}
+            >
+              {slide.name}
+            </Text>
+          </View>
+          <Text
+            style={{
+              ...styles.content,
+              color: slide.textColor,
+              fontFamily: slide.fontFamily,
+              fontSize: slide.fontSize,
+            }}
+          >
+            {slide.content}
+          </Text>
+        </View>
+      </Page>
+    ))}
+  </Document>
+);
 
 function SlidePreview() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -35,7 +135,7 @@ function SlidePreview() {
       name: "Your name",
       profileImage: null,
       backgroundColor: "#00a6a6",
-      fontFamily: "Arial",
+      fontFamily: "Roboto",
       fontSize: 18,
       textColor: "#000000",
       selectedFileName: "No file selected",
@@ -50,27 +150,28 @@ function SlidePreview() {
     );
   };
 
-  const downloadPdf = () => {};
-
   const addSlide = () => {
     if (slides.length >= 5) {
       alert("You can add only 5 slides");
       return;
     }
 
-    setSlides([
-      ...slides,
-      {
-        content: "ADD CONTENT",
-        name: "Your name",
-        profileImage: null,
-        backgroundColor: "#00a6a6",
-        fontFamily: "Arial",
-        fontSize: 18,
-        textColor: "#000000",
-        selectedFileName: "No file selected",
-      },
-    ]);
+    setSlides((prev) => {
+      const newSlides = [
+        ...prev,
+        {
+          content: "ADD CONTENT",
+          name: "Your name",
+          profileImage: null,
+          backgroundColor: "#00a6a6",
+          fontFamily: "Roboto",
+          fontSize: 18,
+          textColor: "#000000",
+          selectedFileName: "No file selected",
+        },
+      ];
+      return newSlides;
+    });
     setCurrentSlide(slides.length);
   };
 
@@ -128,23 +229,31 @@ function SlidePreview() {
             <ArrowBackIosNewIcon />
           </button>
 
-          <Card
-            className="slide"
+          <div
+            className="carousel"
             style={{ backgroundColor: slides[currentSlide].backgroundColor }}
           >
-            <CardHeader
-              avatar={<Avatar src={slides[currentSlide].profileImage || ""} />}
-              title={slides[currentSlide].name}
-              slotProps={{
-                title: {
-                  style: {
-                    fontSize: 14,
-                    color: slides[currentSlide].textColor,
-                  },
-                },
-              }}
-            />
-            <CardContent
+            <div className="profile">
+              <img
+                className="profile-icon"
+                src={
+                  typeof slides[currentSlide].profileImage === "string"
+                    ? slides[currentSlide].profileImage
+                    : "/src/assets/profile.png"
+                }
+              />
+              <p
+                className="profile-name"
+                style={{
+                  fontSize: 14,
+                  fontFamily: slides[currentSlide].fontFamily,
+                  color: slides[currentSlide].textColor,
+                }}
+              >
+                {slides[currentSlide].name}
+              </p>
+            </div>
+            <div
               className="content"
               style={{
                 fontFamily: slides[currentSlide].fontFamily,
@@ -152,17 +261,9 @@ function SlidePreview() {
                 color: slides[currentSlide].textColor,
               }}
             >
-              <Typography
-                sx={{
-                  fontFamily: slides[currentSlide].fontFamily,
-                  fontSize: `${slides[currentSlide].fontSize}px`,
-                  color: slides[currentSlide].textColor,
-                }}
-              >
-                {slides[currentSlide].content}
-              </Typography>
-            </CardContent>
-          </Card>
+              {slides[currentSlide].content}
+            </div>
+          </div>
           <button
             onClick={() => changeSlide("next")}
             className="slide-next"
@@ -295,8 +396,8 @@ function SlidePreview() {
                 }
               >
                 <option value="Roboto">Roboto</option>
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
+                <option value="Abel">Abel</option>
+                <option value="Abril Fatface">Abril Fatface</option>
               </select>
             </label>
 
@@ -315,14 +416,18 @@ function SlidePreview() {
           </div>
         </div>
       </div>
-      <Fab
-        color="primary"
-        aria-label="Download"
-        onClick={downloadPdf}
-        sx={{ position: "absolute", bottom: 35, right: 35 }}
+      <PDFDownloadLink
+        document={<MyDocument slides={slides} />}
+        fileName="carousel.pdf"
       >
-        <Download />
-      </Fab>
+        <Fab
+          color="primary"
+          aria-label="Download"
+          sx={{ position: "absolute", bottom: 35, right: 35 }}
+        >
+          <Download />
+        </Fab>
+      </PDFDownloadLink>
     </div>
   );
 }
