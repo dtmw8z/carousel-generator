@@ -105,7 +105,7 @@ const MyDocument = ({ slides }: { slides: Slide[] }) => (
                 ...styles.profileName,
                 color: slide.textColor,
                 fontFamily: slide.fontFamily,
-                fontSize: slide.fontSize,
+                fontSize: 14,
               }}
             >
               {slide.name}
